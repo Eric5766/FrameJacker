@@ -6,7 +6,7 @@ Provides a simple framework to add graphics API hooks to your projects to call y
 All required headers/dependencies are included either in the project or via CMAKE ([ByteWeaver](https://github.com/0xKate/ByteWeaver/) and [Detours](https://github.com/microsoft/Detours))
 
 ## Features
-- **Multi-API Support**: DirectX 9/10/11/12, OpenGL, and Vulkan
+- **Multi-API Support**: DirectX 9/10/11/12, OpenGL, and Vulkan (Planned)
 - **Modular**: Include only the APIs you need via CMAKE 
 - **Simple Callback System**: Hook into frame presentation and resize events
 - **CMake Integration**: Easy to integrate via FetchContent
@@ -19,17 +19,20 @@ All required headers/dependencies are included either in the project or via CMAK
 | DirectX 11 | ✓ | - | - |
 | DirectX 12 | ✓ | - | ✓ |
 | OpenGL | ✓ | - | - |
-| Vulkan | ✗ | - | - | (Experimental/Incomplete)
+| Vulkan | ✗ | - | - | 
 
 ## Tested & Working
 | API | x86 (32-bit) | x64 (64-bit) |
 |-----|--------------|--------------|
 | DirectX 9 | ✓ | ? |
-| DirectX 10 | ? | ? |
-| DirectX 11 | ? | ? |
+| DirectX 10 | ? (Rare) | ? (Rare) |
+| DirectX 11 | ? (Rare) | ✓ |
 | DirectX 12 | ✗ (x64 only) | ✓ |
 | OpenGL | ? | ? |
 | Vulkan | ✗ | ✗ |
+
+*Vulkan is currently not working as the process for hooking it is far more complicated than DX.*
+*DX10 in general is fairly rare to find nowaday as it was Vista exclusive, but it follows almost the exact same process as DX11 so it should be fine*
 
 ✓ = Tested and working  
 ? = Untested  
