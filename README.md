@@ -107,13 +107,14 @@ BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID) {
         FrameJacker::Hook::SetCallbacks(callbacks);
         
         // Initialize hook - Possible APIs:
+        //FrameJacker::API::Auto - This detects which API is in use by checking loaded DLLs. Warning - Some games load in multiple Graphics APIs even if not using them, so generally it'll always be better to specify the one you are using.
         //FrameJacker::API::D3D9
         //FrameJacker::API::D3D10
         //FrameJacker::API::D3D11
         //FrameJacker::API::D3D12
         //FrameJacker::API::OpenGL
         //FrameJacker::API::Vulkan (Incomplete/non-working)
-        FrameJacker::Hook::Initialize(FrameJacker::API::Auto);
+        FrameJacker::Hook::Initialize(FrameJacker::API::D3D12);
     }
     return TRUE;
 }```
