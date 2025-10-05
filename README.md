@@ -7,7 +7,6 @@ All required headers/dependencies are included either in the project or via CMAK
 
 ## Features
 - **Multi-API Support**: DirectX 9/10/11/12, OpenGL, and Vulkan (Planned)
-- **Modular**: Include only the APIs you need via CMAKE 
 - **Simple Callback System**: Hook into frame presentation and resize events
 - **CMake Integration**: Easy to integrate via FetchContent
 
@@ -45,14 +44,6 @@ All required headers/dependencies are included either in the project or via CMAK
 
 ## CMake Integration
 ```cmake
-# Configure which APIs to include - This will build the library with only the selected APIs.
-set(FRAMEJACKER_D3D9 ON CACHE BOOL "" FORCE)
-set(FRAMEJACKER_D3D10 OFF CACHE BOOL "" FORCE)
-set(FRAMEJACKER_D3D11 OFF CACHE BOOL "" FORCE)
-set(FRAMEJACKER_D3D12 OFF CACHE BOOL "" FORCE)
-set(FRAMEJACKER_VULKAN OFF CACHE BOOL "" FORCE)
-set(FRAMEJACKER_OPENGL OFF CACHE BOOL "" FORCE)
-
 # Fetch FrameJacker
 include(FetchContent)
 FetchContent_Declare(
