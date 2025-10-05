@@ -32,15 +32,12 @@ All required headers/dependencies are included either in the project or via CMAK
 
 *Vulkan is currently not working as the process for hooking it is far more complicated than DX.*
 
-*DX10 in general was used in very few games as it was Vista exclusive, but it follows almost the exact same process as DX11 so it should be fine*
-
-*DX9 64 bit is practically nonexistent as DX9 predates widespread 64 bit adoption*
+*I'm not aware of any DX9 64 bit games nor any 32 bit DX11 games, but the architecture shouldn't matter anyway*
 
 ✓ = Tested and working  
 ? = Untested  
 ✗ = Known issues
 
-*Note: This library is in its very early stages and is largely untested*
 
 ## CMake Integration
 ```cmake
