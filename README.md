@@ -32,7 +32,10 @@ All required headers/dependencies are included either in the project or via CMAK
 | Vulkan | ✗ | ✗ |
 
 *Vulkan is currently not working as the process for hooking it is far more complicated than DX.*
-*DX10 in general is fairly rare to find nowaday as it was Vista exclusive, but it follows almost the exact same process as DX11 so it should be fine*
+
+*DX10 in general was used in very few games as it was Vista exclusive, but it follows almost the exact same process as DX11 so it should be fine*
+
+*DX9 64 bit is practically nonexistent as DX9 predates widespread 64 bit adoption*
 
 ✓ = Tested and working  
 ? = Untested  
