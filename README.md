@@ -46,7 +46,7 @@ include(FetchContent)
 FetchContent_Declare(
     FrameJacker
     GIT_REPOSITORY https://github.com/Eric5766/FrameJacker.git
-    GIT_TAG 0.1.0
+    GIT_TAG 0.1.1
 )
 FetchContent_MakeAvailable(FrameJacker)
 
