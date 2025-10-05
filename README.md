@@ -117,4 +117,5 @@ BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID) {
         FrameJacker::Hook::Initialize(FrameJacker::API::D3D12);
     }
     return TRUE;
-}```
+}
+```
