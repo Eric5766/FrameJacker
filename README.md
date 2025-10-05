@@ -28,7 +28,7 @@ All required headers/dependencies are included either in the project or via CMAK
 | DirectX 9 | ✓ | ? |
 | DirectX 10 | ? | ? |
 | DirectX 11 | ? | ? |
-| DirectX 12 | ? | ✓ |
+| DirectX 12 | ✗ (x64 only) | ✓ |
 | OpenGL | ? | ? |
 | Vulkan | ? | ? |
 
