@@ -8,7 +8,6 @@ All required headers/dependencies are included either in the project or via CMAK
 ## Features
 - **Multi-API Support**: DirectX 9/10/11/12, OpenGL, and Vulkan
 - **Modular**: Include only the APIs you need via CMAKE 
-- **Automatic Detection**: Auto-detects which graphics API is being used
 - **Simple Callback System**: Hook into frame presentation and resize events
 - **CMake Integration**: Easy to integrate via FetchContent
 
@@ -20,7 +19,7 @@ All required headers/dependencies are included either in the project or via CMAK
 | DirectX 11 | ✓ | - | - |
 | DirectX 12 | ✓ | - | ✓ |
 | OpenGL | ✓ | - | - |
-| Vulkan | ✓ | - | - |
+| Vulkan | ✗ | - | - | (Experimental/Incomplete)
 
 ## Tested & Working
 | API | x86 (32-bit) | x64 (64-bit) |
@@ -30,7 +29,7 @@ All required headers/dependencies are included either in the project or via CMAK
 | DirectX 11 | ? | ? |
 | DirectX 12 | ✗ (x64 only) | ✓ |
 | OpenGL | ? | ? |
-| Vulkan | ? | ? |
+| Vulkan | ✗ | ✗ |
 
 ✓ = Tested and working  
 ? = Untested  
@@ -101,7 +100,13 @@ BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID) {
         
         FrameJacker::Hook::SetCallbacks(callbacks);
         
-        // Initialize with auto-detection or specify an API
+        // Initialize hook - Possible APIs:
+        //FrameJacker::API::D3D9
+        //FrameJacker::API::D3D10
+        //FrameJacker::API::D3D11
+        //FrameJacker::API::D3D12
+        //FrameJacker::API::OpenGL
+        //FrameJacker::API::Vulkan (Incomplete/non-working)
         FrameJacker::Hook::Initialize(FrameJacker::API::Auto);
     }
     return TRUE;
