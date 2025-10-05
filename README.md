@@ -24,7 +24,7 @@ All required headers/dependencies are included either in the project or via CMAK
 ## Tested & Working
 | API | x86 (32-bit) | x64 (64-bit) |
 |-----|--------------|--------------|
-| DirectX 9 | ✓ | ? |
+| DirectX 9 | ✓ | ? (Rare) |
 | DirectX 10 | ? (Rare) | ? (Rare) |
 | DirectX 11 | ? (Rare) | ✓ |
 | DirectX 12 | ✗ (x64 only) | ✓ |
