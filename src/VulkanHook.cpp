@@ -91,7 +91,7 @@ namespace FrameJacker {
         }
 
         auto vkCreateInstance = (PFN_vkCreateInstance_Custom)::GetProcAddress(libVulkan, "vkCreateInstance");
-
+        auto vkDestroyInstance = (PFN_vkDestroyInstance_Custom)::GetProcAddress(libVulkan, "vkDestroyInstance");
         auto vkEnumeratePhysicalDevices = (PFN_vkEnumeratePhysicalDevices_Custom)::GetProcAddress(libVulkan, "vkEnumeratePhysicalDevices");
         auto vkCreateDevice = (PFN_vkCreateDevice_Custom)::GetProcAddress(libVulkan, "vkCreateDevice");
         auto vkDestroyDevice = (PFN_vkDestroyDevice_Custom)::GetProcAddress(libVulkan, "vkDestroyDevice");
