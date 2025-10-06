@@ -27,10 +27,21 @@ namespace FrameJacker {
         Vulkan
     };
 
+    struct RenderContext {
+        API api;
+        void* device;           // IDirect3DDevice9*, ID3D11Device*, VkDevice, etc.
+        void* commandBuffer;    // ID3D12GraphicsCommandList*, VkCommandBuffer, etc.
+        void* swapChain;        // IDXGISwapChain*, VkSwapchainKHR, etc.
+        void* renderTarget;     // API-specific render target
+        uint32_t imageIndex;    // For Vulkan/DX12 multi-buffering
+        void* extra;            // API-specific extra data if needed
+    };
+
     struct Callbacks {
         std::function<void()> OnPresent;
         std::function<void()> OnResize;
         std::function<void(void*)> OnDeviceCreated;
+        std::function<void(const RenderContext&)> OnRender; 
     };
 
     class IGraphicsHook {
