@@ -1,6 +1,10 @@
 #include "FrameJacker.h"
 #include <DetourMacros.hpp>
 #include <MemoryManager.h>
+#if FRAMEJACKER_INCLUDE_OPENGL
+#include <Windows.h>
+#include <gl/GL.h>
+#endif
 
 using namespace ByteWeaver;
 
@@ -9,6 +13,7 @@ namespace FrameJacker {
     DECLARE_HOOK(wglSwapBuffers, BOOL, __stdcall, __stdcall, HDC hdc);
 
     static uint150_t* g_MethodsTable = nullptr;
+    static HDC g_HDC = nullptr;
 
     void OpenGLHook::InitializeMethodTable() {
         DEBUG_LOG("OpenGL InitMethodTable starting...");
@@ -35,8 +40,23 @@ namespace FrameJacker {
     }
 
     static BOOL __stdcall wglSwapBuffersHook(HDC hdc) {
+        g_HDC = hdc;
+
         if (Hook::s_Callbacks.OnPresent)
             Hook::s_Callbacks.OnPresent();
+
+        if (Hook::s_Callbacks.OnRender) {
+            RenderContext ctx = {};
+            ctx.api = API::OpenGL;
+            ctx.device = nullptr;
+            ctx.commandBuffer = nullptr;
+            ctx.swapChain = nullptr;
+            ctx.renderTarget = nullptr;
+            ctx.imageIndex = 0;
+            ctx.extra = hdc;  // Pass HDC in extra
+
+            Hook::s_Callbacks.OnRender(ctx);
+        }
 
         return wglSwapBuffersOriginal(hdc);
     }
