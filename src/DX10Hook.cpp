@@ -14,6 +14,8 @@ namespace FrameJacker {
         IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
 
     static uint150_t* g_MethodsTable = nullptr;
+    static IDXGISwapChain* g_SwapChain = nullptr;
+    static ID3D10Device* g_Device = nullptr;
 
     void DX10Hook::InitializeMethodTable() {
         DEBUG_LOG("DX10 InitMethodTable starting...");
@@ -124,8 +126,27 @@ namespace FrameJacker {
     }
 
     static HRESULT __stdcall DX10PresentHook(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags) {
+        g_SwapChain = pSwapChain;
+
+        if (!g_Device && pSwapChain) {
+            pSwapChain->GetDevice(__uuidof(ID3D10Device), (void**)&g_Device);
+        }
+
         if (Hook::s_Callbacks.OnPresent)
             Hook::s_Callbacks.OnPresent();
+
+        if (Hook::s_Callbacks.OnRender && g_Device) {
+            RenderContext ctx = {};
+            ctx.api = API::D3D10;
+            ctx.device = g_Device;
+            ctx.commandBuffer = nullptr;
+            ctx.swapChain = pSwapChain;
+            ctx.renderTarget = nullptr;
+            ctx.imageIndex = 0;
+            ctx.extra = nullptr;
+
+            Hook::s_Callbacks.OnRender(ctx);
+        }
 
         return DX10PresentOriginal(pSwapChain, SyncInterval, Flags);
     }
@@ -168,6 +189,11 @@ namespace FrameJacker {
 
     void DX10Hook::Uninstall() {
         MemoryManager::RestoreAndEraseMod("DX10Present");
+
+        if (g_Device) {
+            g_Device->Release();
+            g_Device = nullptr;
+        }
 
         if (g_MethodsTable) {
             free(g_MethodsTable);

@@ -3,7 +3,7 @@
 #include <MemoryManager.h>
 #if FRAMEJACKER_INCLUDE_D3D9
 #include <d3d9.h>
-#endif 
+#endif
 
 using namespace ByteWeaver;
 
@@ -13,6 +13,7 @@ namespace FrameJacker {
     DECLARE_HOOK(DX9Reset, HRESULT, __stdcall, __stdcall, LPDIRECT3DDEVICE9 pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
 
     static uint150_t* g_MethodsTable = nullptr;
+    static LPDIRECT3DDEVICE9 g_Device = nullptr;
 
     void DX9Hook::InitializeMethodTable() {
         DEBUG_LOG("DX9 InitMethodTable starting...");
@@ -92,8 +93,23 @@ namespace FrameJacker {
     }
 
     static HRESULT __stdcall DX9EndSceneHook(LPDIRECT3DDEVICE9 pDevice) {
+        g_Device = pDevice;
+
         if (Hook::s_Callbacks.OnPresent)
             Hook::s_Callbacks.OnPresent();
+
+        if (Hook::s_Callbacks.OnRender) {
+            RenderContext ctx = {};
+            ctx.api = API::D3D9;
+            ctx.device = pDevice;
+            ctx.commandBuffer = nullptr;
+            ctx.swapChain = nullptr;
+            ctx.renderTarget = nullptr;
+            ctx.imageIndex = 0;
+            ctx.extra = nullptr;
+
+            Hook::s_Callbacks.OnRender(ctx);
+        }
 
         return DX9EndSceneOriginal(pDevice);
     }

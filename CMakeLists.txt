@@ -8,7 +8,7 @@ option(FRAMEJACKER_D3D10 "Enable D3D10 support" ON)
 option(FRAMEJACKER_D3D11 "Enable D3D11 support" ON)
 option(FRAMEJACKER_D3D12 "Enable D3D12 support" ON)
 option(FRAMEJACKER_OPENGL "Enable OpenGL support" ON)
-option(FRAMEJACKER_VULKAN "Enable Vulkan support" OFF)
+option(FRAMEJACKER_VULKAN "Enable Vulkan support" ON)
 option(FRAMEJACKER_USE_FALLBACK_HEADERS "Use fallback DirectX headers for non-MSVC environments" OFF)
 
 include(FetchContent)

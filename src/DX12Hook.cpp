@@ -5,12 +5,10 @@
 #include <d3d12.h>
 #include <dxgi.h>
 #include <dxgi1_4.h>
-#endif 
-
+#endif
 using namespace ByteWeaver;
 
 namespace FrameJacker {
-
 
     DECLARE_HOOK(DX12Present, HRESULT, __stdcall, __stdcall,
         IDXGISwapChain3* pSwapChain, UINT SyncInterval, UINT Flags);
@@ -19,10 +17,11 @@ namespace FrameJacker {
         ID3D12CommandQueue* queue, UINT NumCommandLists, ID3D12CommandList** ppCommandLists);
 
     static ID3D12CommandQueue* g_CommandQueue = nullptr;
+    static IDXGISwapChain3* g_SwapChain = nullptr;
     static uint150_t* g_MethodsTable = nullptr;
 
     static DWORD WINAPI InitThread(LPVOID lpParameter) {
-        Sleep(100); 
+        Sleep(100);
 
         DX12Hook* hook = static_cast<DX12Hook*>(lpParameter);
 
@@ -232,8 +231,23 @@ namespace FrameJacker {
     }
 
     static HRESULT __stdcall DX12PresentHook(IDXGISwapChain3* pSwapChain, UINT SyncInterval, UINT Flags) {
+        g_SwapChain = pSwapChain;
+
         if (Hook::s_Callbacks.OnPresent)
             Hook::s_Callbacks.OnPresent();
+
+        if (Hook::s_Callbacks.OnRender && g_CommandQueue) {
+            RenderContext ctx = {};
+            ctx.api = API::D3D12;
+            ctx.device = nullptr;  // DX12 device accessible via command queue
+            ctx.commandBuffer = nullptr;  // User creates their own command lists
+            ctx.swapChain = pSwapChain;
+            ctx.renderTarget = nullptr;
+            ctx.imageIndex = 0;
+            ctx.extra = g_CommandQueue;  // Pass command queue
+
+            Hook::s_Callbacks.OnRender(ctx);
+        }
 
         return DX12PresentOriginal(pSwapChain, SyncInterval, Flags);
     }
@@ -261,7 +275,7 @@ namespace FrameJacker {
         DEBUG_LOG("d3d12.dll found, creating init thread...");
         CreateThread(NULL, 0, InitThread, this, 0, NULL);
 
-        return true; 
+        return true;
     }
 
     void DX12Hook::Uninstall() {
