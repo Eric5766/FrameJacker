@@ -218,3 +218,99 @@ BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID) {
 }
 ```
 
+## Basic DX9 Imgui implementation example
+
+```cpp
+#include <FrameJacker.h>
+#include "imgui.h"
+#include <imgui_impl_dx9.h>
+#include <imgui_impl_win32.h>
+#include <d3d9.h>
+
+static bool g_ImGuiInitialized = false;
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static WNDPROC g_OriginalWndProc = nullptr;
+
+
+LRESULT CALLBACK WndProcHook(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam))
+        return true;
+
+    return CallWindowProc(g_OriginalWndProc, hWnd, uMsg, wParam, lParam);
+}
+
+void InitializeImGui(LPDIRECT3DDEVICE9 device) {
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui::StyleColorsDark();
+
+    D3DDEVICE_CREATION_PARAMETERS params;
+    device->GetCreationParameters(&params);
+
+    g_OriginalWndProc = (WNDPROC)SetWindowLongPtr(params.hFocusWindow, GWLP_WNDPROC, (LONG_PTR)WndProcHook);
+
+    ImGui_ImplWin32_Init(params.hFocusWindow);
+    ImGui_ImplDX9_Init(device);
+
+    g_ImGuiInitialized = true;
+}
+
+void CleanupImGui() {
+    if (g_ImGuiInitialized) {
+        ImGui_ImplDX9_Shutdown();
+        ImGui_ImplWin32_Shutdown();
+        ImGui::DestroyContext();
+        g_ImGuiInitialized = false;
+    }
+}
+
+void OnResize() {
+    if (g_ImGuiInitialized) {
+        ImGui_ImplDX9_InvalidateDeviceObjects();
+    }
+}
+
+void OnRender(const FrameJacker::RenderContext& ctx) {
+    if (ctx.api != FrameJacker::API::D3D9)
+        return;
+
+    auto* device = static_cast<LPDIRECT3DDEVICE9>(ctx.device);
+
+    if (!g_ImGuiInitialized) {
+        InitializeImGui(device);
+    }
+
+    ImGui_ImplDX9_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
+
+    ImGui::Begin("DX9 Overlay");
+    ImGui::Text("Hello from FrameJacker!");
+    ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+
+    ImGui::End();
+
+    ImGui::EndFrame();
+    ImGui::Render();
+    ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+}
+
+BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD fdwReason, LPVOID) {
+    if (fdwReason == DLL_PROCESS_ATTACH) {
+        DisableThreadLibraryCalls(hInstance);
+
+        FrameJacker::Callbacks callbacks;
+        callbacks.OnRender = OnRender;
+        callbacks.OnResize = OnResize;  // Important for DX9!
+
+        FrameJacker::Hook::SetCallbacks(callbacks);
+        FrameJacker::Hook::Initialize();
+    }
+    else if (fdwReason == DLL_PROCESS_DETACH) {
+        CleanupImGui();
+        FrameJacker::Hook::Shutdown();
+    }
+
+    return TRUE;
+}
+```
