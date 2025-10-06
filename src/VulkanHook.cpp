@@ -91,7 +91,7 @@ namespace FrameJacker {
         }
 
         auto vkCreateInstance = (PFN_vkCreateInstance_Custom)::GetProcAddress(libVulkan, "vkCreateInstance");
-        auto vkDestroyInstance = (PFN_vkDestroyInstance_Custom)::GetProcAddress(libVulkan, "vkDestroyInstance");
+
         auto vkEnumeratePhysicalDevices = (PFN_vkEnumeratePhysicalDevices_Custom)::GetProcAddress(libVulkan, "vkEnumeratePhysicalDevices");
         auto vkCreateDevice = (PFN_vkCreateDevice_Custom)::GetProcAddress(libVulkan, "vkCreateDevice");
         auto vkDestroyDevice = (PFN_vkDestroyDevice_Custom)::GetProcAddress(libVulkan, "vkDestroyDevice");
@@ -205,10 +205,12 @@ namespace FrameJacker {
     }
 
     void VulkanHook::Uninstall() {
+
         MemoryManager::RestoreAndEraseMod("vkAcquireNextImageKHR");
         MemoryManager::RestoreAndEraseMod("vkQueuePresentKHR");
         MemoryManager::RestoreAndEraseMod("vkCreateSwapchainKHR");
-
+        HMODULE libVulkan = ::GetModuleHandleW(L"vulkan-1.dll");
+        auto vkDestroyInstance = (PFN_vkDestroyInstance_Custom)::GetProcAddress(libVulkan, "vkDestroyInstance");
         if (g_Instance) {
             vkDestroyInstance(g_Instance, nullptr);
             g_Instance = VK_NULL_HANDLE;
