@@ -2,13 +2,18 @@
 #include <DetourMacros.hpp>
 #include <MemoryManager.h>
 #if FRAMEJACKER_INCLUDE_VULKAN
-#include "vulkan.h"
 #include "vulkan_core.h"
 #endif
 
 using namespace ByteWeaver;
 
 namespace FrameJacker {
+    typedef VkResult(VKAPI_PTR* PFN_vkCreateInstance_Custom)(const VkInstanceCreateInfo*, const VkAllocationCallbacks*, VkInstance*);
+    typedef void (VKAPI_PTR* PFN_vkDestroyInstance_Custom)(VkInstance, const VkAllocationCallbacks*);
+    typedef VkResult(VKAPI_PTR* PFN_vkEnumeratePhysicalDevices_Custom)(VkInstance, uint32_t*, VkPhysicalDevice*);
+    typedef VkResult(VKAPI_PTR* PFN_vkCreateDevice_Custom)(VkPhysicalDevice, const VkDeviceCreateInfo*, const VkAllocationCallbacks*, VkDevice*);
+    typedef void (VKAPI_PTR* PFN_vkDestroyDevice_Custom)(VkDevice, const VkAllocationCallbacks*);
+    typedef PFN_vkVoidFunction(VKAPI_PTR* PFN_vkGetDeviceProcAddr_Custom)(VkDevice, const char*);
 
     DECLARE_HOOK(vkQueuePresentKHR, VkResult, __stdcall, __stdcall,
         VkQueue queue, const VkPresentInfoKHR* pPresentInfo);
@@ -79,6 +84,19 @@ namespace FrameJacker {
         VkInstanceCreateInfo instanceInfo = {};
         instanceInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 
+        HMODULE libVulkan = ::GetModuleHandleW(L"vulkan-1.dll");
+        if (!libVulkan) {
+            DEBUG_LOG("vulkan-1.dll not found");
+            return;
+        }
+
+        auto vkCreateInstance = (PFN_vkCreateInstance_Custom)::GetProcAddress(libVulkan, "vkCreateInstance");
+        auto vkDestroyInstance = (PFN_vkDestroyInstance_Custom)::GetProcAddress(libVulkan, "vkDestroyInstance");
+        auto vkEnumeratePhysicalDevices = (PFN_vkEnumeratePhysicalDevices_Custom)::GetProcAddress(libVulkan, "vkEnumeratePhysicalDevices");
+        auto vkCreateDevice = (PFN_vkCreateDevice_Custom)::GetProcAddress(libVulkan, "vkCreateDevice");
+        auto vkDestroyDevice = (PFN_vkDestroyDevice_Custom)::GetProcAddress(libVulkan, "vkDestroyDevice");
+        auto vkGetDeviceProcAddr = (PFN_vkGetDeviceProcAddr_Custom)::GetProcAddress(libVulkan, "vkGetDeviceProcAddr");
+
         if (vkCreateInstance(&instanceInfo, nullptr, &g_Instance) != VK_SUCCESS) {
             DEBUG_LOG("vkCreateInstance failed");
             return;
@@ -91,6 +109,9 @@ namespace FrameJacker {
             vkDestroyInstance(g_Instance, nullptr);
             return;
         }
+
+
+
 
         VkPhysicalDevice devices[8];
         vkEnumeratePhysicalDevices(g_Instance, &deviceCount, devices);
