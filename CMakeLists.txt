@@ -1,13 +1,13 @@
 ﻿cmake_minimum_required(VERSION 3.20)
-project(FrameJacker VERSION 0.1.0)
+project(FrameJacker VERSION 0.1.1)
 
 set(CMAKE_CXX_STANDARD 20)
 
-option(FRAMEJACKER_D3D9 "Enable D3D9 support" OFF)
-option(FRAMEJACKER_D3D10 "Enable D3D10 support" OFF)
-option(FRAMEJACKER_D3D11 "Enable D3D11 support" OFF)
-option(FRAMEJACKER_D3D12 "Enable D3D12 support" OFF)
-option(FRAMEJACKER_OPENGL "Enable OpenGL support" OFF)
+option(FRAMEJACKER_D3D9 "Enable D3D9 support" ON)
+option(FRAMEJACKER_D3D10 "Enable D3D10 support" ON)
+option(FRAMEJACKER_D3D11 "Enable D3D11 support" ON)
+option(FRAMEJACKER_D3D12 "Enable D3D12 support" ON)
+option(FRAMEJACKER_OPENGL "Enable OpenGL support" ON)
 option(FRAMEJACKER_VULKAN "Enable Vulkan support" OFF)
 option(FRAMEJACKER_USE_FALLBACK_HEADERS "Use fallback DirectX headers for non-MSVC environments" OFF)
 
