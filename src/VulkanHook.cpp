@@ -2,7 +2,8 @@
 #include <DetourMacros.hpp>
 #include <MemoryManager.h>
 #if FRAMEJACKER_INCLUDE_VULKAN
-#include <vulkan_core.h>
+#include "vulkan.h"
+#include "vulkan_core.h"
 #endif
 
 using namespace ByteWeaver;
