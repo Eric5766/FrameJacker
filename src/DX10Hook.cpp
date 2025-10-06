@@ -13,6 +13,10 @@ namespace FrameJacker {
     DECLARE_HOOK(DX10Present, HRESULT, __stdcall, __stdcall,
         IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
 
+    DECLARE_HOOK(DX10ResizeBuffers, HRESULT, __stdcall, __stdcall,
+        IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height,
+        DXGI_FORMAT NewFormat, UINT SwapChainFlags);
+
     static uint150_t* g_MethodsTable = nullptr;
     static IDXGISwapChain* g_SwapChain = nullptr;
     static ID3D10Device* g_Device = nullptr;
@@ -151,6 +155,16 @@ namespace FrameJacker {
         return DX10PresentOriginal(pSwapChain, SyncInterval, Flags);
     }
 
+    static HRESULT __stdcall DX10ResizeBuffersHook(
+        IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height,
+        DXGI_FORMAT NewFormat, UINT SwapChainFlags) {
+
+        if (Hook::s_Callbacks.OnResize)
+            Hook::s_Callbacks.OnResize();
+
+        return DX10ResizeBuffersOriginal(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
+    }
+
     static DWORD WINAPI DX10InitThread(LPVOID lpParameter) {
         Sleep(100);
 
@@ -166,8 +180,10 @@ namespace FrameJacker {
 
         DEBUG_LOG("Installing DX10 hooks...");
         INSTALL_HOOK_ADDRESS(DX10Present, g_MethodsTable[8]);
+        INSTALL_HOOK_ADDRESS(DX10ResizeBuffers, g_MethodsTable[13]);
 
         MemoryManager::ApplyMod("DX10Present");
+        MemoryManager::ApplyMod("DX10ResizeBuffers");
 
         DEBUG_LOG("DX10 installation complete");
         return 0;
@@ -189,6 +205,7 @@ namespace FrameJacker {
 
     void DX10Hook::Uninstall() {
         MemoryManager::RestoreAndEraseMod("DX10Present");
+        MemoryManager::RestoreAndEraseMod("DX10ResizeBuffers");
 
         if (g_Device) {
             g_Device->Release();

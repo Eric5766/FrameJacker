@@ -16,6 +16,10 @@ namespace FrameJacker {
     DECLARE_HOOK(DX12ExecuteCommandLists, void, __stdcall, __stdcall,
         ID3D12CommandQueue* queue, UINT NumCommandLists, ID3D12CommandList** ppCommandLists);
 
+    DECLARE_HOOK(DX12ResizeBuffers, HRESULT, __stdcall, __stdcall,
+        IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height,
+        DXGI_FORMAT NewFormat, UINT SwapChainFlags);
+
     static ID3D12CommandQueue* g_CommandQueue = nullptr;
     static IDXGISwapChain3* g_SwapChain = nullptr;
     static uint150_t* g_MethodsTable = nullptr;
@@ -36,10 +40,12 @@ namespace FrameJacker {
 
         DEBUG_LOG("Installing hooks...");
         INSTALL_HOOK_ADDRESS(DX12ExecuteCommandLists, g_MethodsTable[54]);
+        INSTALL_HOOK_ADDRESS(DX12ResizeBuffers, g_MethodsTable[140 - 132]);
         INSTALL_HOOK_ADDRESS(DX12Present, g_MethodsTable[140]);
 
-        ByteWeaver::MemoryManager::ApplyMod("DX12ExecuteCommandLists");
-        ByteWeaver::MemoryManager::ApplyMod("DX12Present");
+        MemoryManager::ApplyMod("DX12ExecuteCommandLists");
+        MemoryManager::ApplyMod("DX12ResizeBuffers");
+        MemoryManager::ApplyMod("DX12Present");
 
         DEBUG_LOG("Installation complete");
         return 0;
@@ -252,6 +258,16 @@ namespace FrameJacker {
         return DX12PresentOriginal(pSwapChain, SyncInterval, Flags);
     }
 
+    static HRESULT __stdcall DX12ResizeBuffersHook(
+        IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height,
+        DXGI_FORMAT NewFormat, UINT SwapChainFlags) {
+
+        if (Hook::s_Callbacks.OnResize)
+            Hook::s_Callbacks.OnResize();
+
+        return DX12ResizeBuffersOriginal(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
+    }
+
     static void __stdcall DX12ExecuteCommandListsHook(ID3D12CommandQueue* queue,
         UINT NumCommandLists, ID3D12CommandList** ppCommandLists) {
 
@@ -281,6 +297,7 @@ namespace FrameJacker {
     void DX12Hook::Uninstall() {
         MemoryManager::RestoreAndEraseMod("DX12Present");
         MemoryManager::RestoreAndEraseMod("DX12ExecuteCommandLists");
+        MemoryManager::RestoreAndEraseMod("DX12ResizeBuffers");
 
         if (g_MethodsTable) {
             free(g_MethodsTable);

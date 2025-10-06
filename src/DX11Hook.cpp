@@ -13,6 +13,10 @@ namespace FrameJacker {
     DECLARE_HOOK(DX11Present, HRESULT, __stdcall, __stdcall,
         IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
 
+    DECLARE_HOOK(DX11ResizeBuffers, HRESULT, __stdcall, __stdcall,
+        IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height,
+        DXGI_FORMAT NewFormat, UINT SwapChainFlags);
+
     static uint150_t* g_MethodsTable = nullptr;
     static IDXGISwapChain* g_SwapChain = nullptr;
     static ID3D11Device* g_Device = nullptr;
@@ -128,6 +132,16 @@ namespace FrameJacker {
         return DX11PresentOriginal(pSwapChain, SyncInterval, Flags);
     }
 
+    static HRESULT __stdcall DX11ResizeBuffersHook(
+        IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height,
+        DXGI_FORMAT NewFormat, UINT SwapChainFlags) {
+
+        if (Hook::s_Callbacks.OnResize)
+            Hook::s_Callbacks.OnResize();
+
+        return DX11ResizeBuffersOriginal(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
+    }
+
     static DWORD WINAPI DX11InitThread(LPVOID lpParameter) {
         Sleep(100);
 
@@ -143,8 +157,10 @@ namespace FrameJacker {
 
         DEBUG_LOG("Installing DX11 hooks...");
         INSTALL_HOOK_ADDRESS(DX11Present, g_MethodsTable[8]);
+        INSTALL_HOOK_ADDRESS(DX11ResizeBuffers, g_MethodsTable[13]);
 
         MemoryManager::ApplyMod("DX11Present");
+        MemoryManager::ApplyMod("DX11ResizeBuffers");
 
         DEBUG_LOG("DX11 installation complete");
         return 0;
@@ -166,6 +182,7 @@ namespace FrameJacker {
 
     void DX11Hook::Uninstall() {
         MemoryManager::RestoreAndEraseMod("DX11Present");
+        MemoryManager::RestoreAndEraseMod("DX11ResizeBuffers");
 
         if (g_Context) {
             g_Context->Release();
