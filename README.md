@@ -30,7 +30,7 @@ All required headers/dependencies are included either in the project or via CMAK
 ## Tested & Working
 | API | x86 (32-bit) | x64 (64-bit) |
 |-----|--------------|--------------|
-| DirectX 9 | ✓ | ✓ ) |
+| DirectX 9 | ✓ | ✓  |
 | DirectX 10 | ✓ | ✓ |
 | DirectX 11 | ✓  | ✓ |
 | DirectX 12 | ✗ (DX12 = x64 only) | ✓ |
@@ -50,7 +50,7 @@ include(FetchContent)
 FetchContent_Declare(
     FrameJacker
     GIT_REPOSITORY https://github.com/Eric5766/FrameJacker.git
-    GIT_TAG 0.1.1
+    GIT_TAG 0.2.1
 )
 FetchContent_MakeAvailable(FrameJacker)
 
